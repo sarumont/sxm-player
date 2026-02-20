@@ -80,12 +80,6 @@ OPTION_MP3_PORT = typer.Option(
     help="Port for MP3 proxy server",
     envvar="SXM_MP3_PORT",
 )
-OPTION_MP3_BITRATE = typer.Option(
-    "128k",
-    "--mp3-bitrate",
-    help="MP3 output bitrate (e.g. 128k, 192k, 320k)",
-    envvar="SXM_MP3_BITRATE",
-)
 
 
 def main(
@@ -102,7 +96,6 @@ def main(
     reset_songs: bool = OPTION_RESET_SONGS,
     precache: bool = OPTION_PRECACHE,
     mp3_port: int = OPTION_MP3_PORT,
-    mp3_bitrate: str = OPTION_MP3_BITRATE,
     player_class: Optional[str] = ARG_PLAYER_CLASS,
 ):
     """Command line interface for sxm-player"""
@@ -134,7 +127,7 @@ def main(
             ip=host,
             sxm_port=port,
             sxm_ip=host,
-            mp3_bitrate=mp3_bitrate,
+            sxm_quality=quality,
         )
 
         if klass is not None:
