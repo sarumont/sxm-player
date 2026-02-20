@@ -27,7 +27,7 @@ from sxm_player.players import BasePlayer
 from sxm_player.queue import EventMessage, EventTypes
 from sxm_player.runner import Runner
 from sxm_player.utils import ACTIVE_PROCESS_STATUSES
-from sxm_player.workers import ServerWorker, StatusWorker
+from sxm_player.workers import MP3ProxyWorker, ServerWorker, StatusWorker
 
 OPTION_CONFIG_FILE = typer.Option(
     None,
@@ -74,6 +74,18 @@ ARG_PLAYER_CLASS = typer.Argument(
     help="Optional Player Class to use",
     envvar="SXM_PLAYER_CLASS",
 )
+OPTION_MP3_PORT = typer.Option(
+    9998,
+    "--mp3-port",
+    help="Port for MP3 proxy server",
+    envvar="SXM_MP3_PORT",
+)
+OPTION_MP3_BITRATE = typer.Option(
+    "128k",
+    "--mp3-bitrate",
+    help="MP3 output bitrate (e.g. 128k, 192k, 320k)",
+    envvar="SXM_MP3_BITRATE",
+)
 
 
 def main(
@@ -89,6 +101,8 @@ def main(
     output_folder: Optional[Path] = OPTION_OUTPUT_FOLDER,
     reset_songs: bool = OPTION_RESET_SONGS,
     precache: bool = OPTION_PRECACHE,
+    mp3_port: int = OPTION_MP3_PORT,
+    mp3_bitrate: str = OPTION_MP3_BITRATE,
     player_class: Optional[str] = ARG_PLAYER_CLASS,
 ):
     """Command line interface for sxm-player"""
@@ -111,6 +125,16 @@ def main(
             port=port,
             ip=host,
             sxm_status=state.sxm_running,
+        )
+
+        runner.create_worker(
+            MP3ProxyWorker,
+            MP3ProxyWorker.NAME,
+            port=mp3_port,
+            ip=host,
+            sxm_port=port,
+            sxm_ip=host,
+            mp3_bitrate=mp3_bitrate,
         )
 
         if klass is not None:
